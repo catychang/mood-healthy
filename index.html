@@ -1,0 +1,1109 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>心语安慰 - 温暖你的心灵</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-bg: #000000;
+            --secondary-bg: #121212;
+            --accent-color: #6AFFA0;
+            --accent-glow: rgba(106, 255, 160, 0.15);
+            --text-primary: #FFFFFF;
+            --text-secondary: #E0E0E0;
+            --card-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --transition-speed: 0.3s;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'PingFang SC', 'Inter', '微软雅黑', sans-serif;
+            background: var(--primary-bg);
+            color: var(--text-secondary);
+            line-height: 1.6;
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* 波纹动效背景 */
+        .wave-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            overflow: hidden;
+            z-index: 10;
+            pointer-events: none;
+        }
+
+        .glow-effect {
+            position: absolute;
+            top: calc(20% - 230px);
+            left: 50%;
+            transform: translateX(-50%);
+            width: 84%;
+            height: 300px;
+            background: radial-gradient(ellipse, rgba(106, 255, 160, 0.15), transparent 75%);
+            filter: blur(75px);
+            z-index: 0;
+            pointer-events: none;
+        }
+        
+        .glow-effect-small {
+            position: absolute;
+            top: calc(40% - 290px);
+            left: 30%;
+            width: 200px;
+            height: 200px;
+            background: radial-gradient(circle, rgba(106, 255, 160, 0.09), transparent 75%);
+            filter: blur(35px);
+            z-index: 0;
+            pointer-events: none;
+        }
+        
+        .glow-effect-small-2 {
+            position: absolute;
+            top: calc(30% - 290px);
+            left: 65%;
+            width: 150px;
+            height: 150px;
+            background: radial-gradient(circle, rgba(106, 255, 160, 0.07), transparent 75%);
+            filter: blur(35px);
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* 主要内容区域 */
+        .main-content {
+            margin-top: 10px;
+            padding: 2rem 0;
+        }
+
+        /* 英雄区样式 */
+        .hero-section {
+            margin: 2.5rem 0 2.5rem 0;
+            max-width: 800px;
+            text-align: center;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .hero-title {
+            font-size: 32px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: calc(0.75rem - 5px);
+            line-height: 1.4;
+            letter-spacing: 1px;
+        }
+        
+        .hero-title .highlight {
+            color: var(--accent-color);
+            position: relative;
+        }
+        
+        .hero-title .highlight::after {
+            content: '';
+            position: absolute;
+            bottom: 0.1em;
+            left: 0;
+            width: 100%;
+            height: 0.1em;
+            background-color: var(--accent-color);
+            opacity: 0.3;
+        }
+        
+        .hero-description {
+            font-size: 15px;
+            color: var(--text-primary);
+            opacity: 0.55;
+            max-width: 600px;
+            line-height: 1.6;
+            margin-bottom: 0;
+            margin-left: auto;
+            margin-right: auto;
+            font-weight: normal;
+            margin-top: 0.5rem;
+        }
+
+        /* 导航栏样式 */
+        .nav {
+            background: #141615;
+            backdrop-filter: blur(10px);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            padding: 0 0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            height: 64px;
+        }
+
+        .nav-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 2rem;
+            height: 64px;
+        }
+
+        .logo {
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .logo-heart {
+            position: relative;
+            width: 18px;
+            height: 18px;
+            background-color: var(--accent-color);
+            transform: rotate(45deg);
+            border-radius: 4px;
+            margin-right: 5px;
+        }
+        
+        .logo-heart::before,
+        .logo-heart::after {
+            content: '';
+            position: absolute;
+            width: 18px;
+            height: 18px;
+            background-color: var(--accent-color);
+            border-radius: 50%;
+        }
+        
+        .logo-heart::before {
+            top: -9px;
+            left: 0;
+        }
+        
+        .logo-heart::after {
+            top: 0;
+            left: -9px;
+        }
+        
+        @keyframes pulse {
+            0% { transform: rotate(-45deg) scale(1); }
+            50% { transform: rotate(-45deg) scale(1.1); }
+            100% { transform: rotate(-45deg) scale(1); }
+        }
+
+        .tabs {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .tab {
+            color: var(--text-secondary);
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            transition: all var(--transition-speed);
+            position: relative;
+            opacity: 0.7;
+        }
+
+        .tab:hover {
+            background: transparent;
+            opacity: 1;
+        }
+
+        .tab.active {
+            background: transparent;
+            color: var(--text-primary);
+            opacity: 1;
+        }
+        
+        .tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: -11px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: calc(100% - 2rem);
+            height: 2px;
+            background-color: var(--accent-color);
+            box-shadow: 0 0 8px var(--accent-color);
+        }
+
+        /* 情绪选择卡片 */
+        .mood-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 16px;
+            margin: 30px 0 2rem 0;
+        }
+
+        .mood-card {
+            background: transparent;
+            border-radius: 8px;
+            border: 1px solid #435249;
+            color: #fff;
+            font-size: 14px;
+            font-family: 'PingFang HK', 'Inter', sans-serif;
+            height: 46px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: none;
+            font-weight: 400;
+        }
+
+        .mood-card span {
+            font-size: 14px !important;
+            font-weight: normal !important;
+        }
+
+        .mood-card.active {
+            background: #6AFFA0;
+            color: #000;
+            border: none;
+            box-shadow: 0 0 10px rgba(106, 255, 160, 0.2);
+        }
+        
+        .mood-card.active span {
+            font-weight: bold !important;
+            font-size: 14px !important;
+        }
+
+        .mood-card:hover {
+            background: #6AFFA0;
+            color: #000;
+            border: none;
+            box-shadow: 0 0 10px rgba(106, 255, 160, 0.2);
+        }
+        
+        .mood-card:hover span {
+            font-weight: bold !important;
+            font-size: 14px !important;
+        }
+
+        .mood-card.add {
+            border: 1px dashed #435249;
+            background: transparent;
+        }
+        
+        .mood-card.add img {
+            width: 16px;
+            height: 16px;
+        }
+
+        .mood-card.add:hover img {
+            filter: brightness(1.2);
+        }
+
+        /* 文本输入区域 */
+        .text-input {
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 8px;
+            padding: 0;
+            height: 66px;
+            margin: 2rem 0;
+            box-shadow: var(--card-shadow);
+            border: none;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .text-input::before {
+            display: none;
+        }
+
+        .input-container {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            position: relative;
+            z-index: 1;
+            height: 100%;
+            padding: 0 1.5rem;
+        }
+
+        .text-input textarea {
+            flex: 1;
+            background: transparent;
+            border: none;
+            padding: 0;
+            color: var(--text-primary);
+            font-family: inherit;
+            font-size: 14px;
+            resize: none;
+            height: 38px;
+            min-height: 38px;
+            line-height: 38px;
+            transition: all var(--transition-speed);
+            vertical-align: middle;
+        }
+        
+        .text-input textarea::placeholder {
+            line-height: 38px;
+            vertical-align: middle;
+            opacity: 0.3;
+            color: var(--text-primary);
+        }
+
+        .text-input textarea:focus {
+            outline: none;
+        }
+        
+        /* 清空按钮样式 */
+        .clear-button {
+            width: 24px;
+            height: 24px;
+            background: transparent;
+            border: none;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            margin-right: 12px;
+            transition: all 0.2s;
+        }
+        
+        .clear-button svg {
+            width: 16px;
+            height: 16px;
+            stroke: rgba(255, 255, 255, 0.6);
+            transition: all 0.2s;
+        }
+        
+        .clear-button img {
+            width: 18px;
+            height: 18px;
+            opacity: 0.6;
+            transition: all 0.2s;
+        }
+        
+        .clear-button:hover img {
+            opacity: 0.9;
+        }
+
+        .submit-button {
+            background: transparent;
+            color: var(--accent-color);
+            border: 1px solid var(--accent-color);
+            border-radius: 8px;
+            padding: 0 1.5rem;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all var(--transition-speed);
+            white-space: nowrap;
+            position: relative;
+            overflow: hidden;
+            height: 38px;
+            line-height: 38px;
+        }
+
+        .submit-button:hover {
+            background: rgba(106, 255, 160, 0.1);
+        }
+
+        .submit-button:active {
+            transform: none;
+        }
+        
+        /* 禁用状态的确定按钮样式 */
+        .submit-button:disabled {
+            background: transparent;
+            color: rgba(106, 255, 160, 0.3);
+            border: 1px solid rgba(106, 255, 160, 0.3);
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+        
+        .submit-button:disabled::before {
+            display: none;
+        }
+
+        /* 引言卡片样式 */
+        #results-container {
+            margin-top: 2rem;
+        }
+        
+        .quote-card {
+            background: var(--secondary-bg);
+            border-radius: 8px;
+            padding: 1.2rem 1.5rem;
+            margin-bottom: 8px;
+            box-shadow: var(--card-shadow);
+            border: 1px solid rgba(106, 255, 160, 0.05);
+            position: relative;
+            overflow: hidden;
+            animation: fadeIn 0.5s ease-in-out;
+            height: 90px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        
+        .quote-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(106, 255, 160, 0.03) 0%, transparent 100%);
+            pointer-events: none;
+        }
+        
+        .quote-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            margin-bottom: 10px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .quote-actions-row {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            width: 100%;
+            margin-top: -6px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .quote-content {
+            font-size: 1.3rem;
+            color: var(--text-primary);
+            line-height: 1.5;
+            font-family: "华文楷体", "STKaiti", kaiti, serif;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            max-width: 70%;
+            text-align: left;
+        }
+
+        .quote-source {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            opacity: 0.7;
+            text-align: right;
+            white-space: nowrap;
+        }
+
+        .quote-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.3rem;
+            position: relative;
+        }
+
+        .action-button {
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all var(--transition-speed);
+            padding: 0;
+            margin: 0;
+        }
+        
+        .action-button.copy-btn {
+            margin-left: 8px;
+        }
+        
+        .action-button.favorite-btn {
+            margin-left: 16px;
+        }
+        
+        .action-button svg {
+            width: 16px;
+            height: 16px;
+            fill: none; stroke: var(--text-secondary); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
+            transition: all var(--transition-speed);
+        }
+        
+        .action-button img {
+            width: 18px;
+            height: 18px;
+            transition: all var(--transition-speed);
+        }
+        
+        .action-button:hover {
+            background: rgba(106, 255, 160, 0.1);
+        }
+        
+        .action-button:hover svg {
+            stroke: var(--accent-color);
+        }
+        
+        .action-button:hover img {
+            filter: brightness(1.2);
+        }
+
+.action-button:active {
+    transform: none;
+}
+        
+        .favorite-btn.active svg {
+            stroke: var(--accent-color);
+            fill: var(--accent-color);
+        }
+        
+        .favorite-btn.active img {
+            filter: brightness(1.2) saturate(1.5);
+        }
+
+        .copy-tooltip {
+            position: absolute;
+            top: -25px;
+            right: 0;
+            background: rgba(0, 0, 0, 0.8);
+            color: #fff;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 10px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+        }
+        
+        .copy-tooltip.show {
+            opacity: 1;
+        }
+
+        .show-more {
+            background: transparent;
+            border: 1px solid var(--accent-color);
+            color: var(--accent-color);
+            border-radius: 8px;
+            padding: 0.8rem 2rem;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all var(--transition-speed);
+            margin: 1rem auto;
+            display: block;
+        }
+
+        .show-more:hover {
+            background: rgba(106, 255, 160, 0.1);
+        }
+        
+        .show-more:active {
+            transform: none;
+        }
+
+        /* 自定义弹窗样式 */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+        }
+        
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .modal-content {
+            background-color: #121212;
+            border-radius: 8px;
+            padding: 24px;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+            position: relative;
+            transition: opacity 0.3s ease;
+            border: 1px solid rgba(106, 255, 160, 0.1);
+        }
+        
+        .modal-content::before {
+            content: '';
+            position: absolute;
+            top: -10px;
+            left: -10px;
+            right: -10px;
+            bottom: -10px;
+            background: radial-gradient(ellipse at top, rgba(106, 255, 160, 0.05), transparent 70%);
+            border-radius: 16px;
+            z-index: -1;
+            pointer-events: none;
+        }
+        
+        .modal-overlay.active .modal-content {
+            transform: none;
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .modal-title {
+            font-size: 18px;
+            font-weight: 500;
+            color: var(--text-primary);
+            position: relative;
+            display: inline-block;
+        }
+        
+        .modal-title::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 100%;
+            height: 1px;
+            background: var(--accent-color);
+            opacity: 0.5;
+        }
+        
+        .modal-close {
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            line-height: 1;
+            transition: all 0.2s;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 24px;
+            height: 24px;
+        }
+        
+        .modal-close img {
+            width: 16px;
+            height: 16px;
+            transition: all 0.2s;
+        }
+        
+        .modal-close:hover {
+            color: var(--accent-color);
+        }
+        
+        .modal-close:hover img {
+            filter: brightness(1.2);
+        }
+        
+        .modal-input-group {
+            margin-bottom: 20px;
+        }
+        
+        .modal-input {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            padding: 10px 15px;
+            font-size: 14px;
+            color: var(--text-primary);
+            transition: all 0.3s;
+        }
+        
+        .modal-input:focus {
+            outline: none;
+            border-color: var(--accent-color);
+            box-shadow: 0 0 5px var(--accent-glow);
+            background: rgba(255, 255, 255, 0.08);
+        }
+        
+        .modal-input::placeholder {
+            color: rgba(255, 255, 255, 0.35);
+            transition: color 0.3s;
+            font-size: 14px;
+        }
+        
+        .modal-input:focus::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+        
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+        
+        .modal-button {
+            padding: 8px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .modal-button-cancel {
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: var(--text-secondary);
+        }
+        
+        .modal-button-cancel:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+        
+        .modal-button-cancel:active {
+            transform: none;
+        }
+        
+        .modal-button-add {
+            background: var(--accent-color);
+            color: #000;
+            border: none;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .modal-button-add:hover {
+            background: #5DE08C;
+        }
+        
+        .modal-button-add:active {
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* 自定义情绪词卡片选中态 */
+        .mood-card.custom-emotion.active {
+            background: #6AFFA0 !important;
+            color: #000 !important;
+            border: none !important;
+        }
+
+        .mood-card.custom-emotion.active .emotion-content span {
+            font-weight: bold !important;
+            font-size: 14px !important;
+            color: #000 !important;
+        }
+
+        /* 自定义情绪词卡片选中态删除按钮 */
+        .mood-card.custom-emotion.active .delete-emotion-btn {
+            color: #000 !important;
+            display: flex !important;
+        }
+
+        /* 自定义情绪词卡片悬浮态 - 确保与选中态一致 */
+        .mood-card.custom-emotion:hover {
+            background: #6AFFA0 !important;
+            color: #000 !important;
+            border: none !important;
+        }
+
+        .mood-card.custom-emotion:hover .emotion-content span {
+            font-weight: bold !important;
+            font-size: 14px !important;
+            color: #000 !important;
+        }
+
+        /* 自定义情绪词卡片悬浮态删除按钮 */
+        .mood-card.custom-emotion:hover .delete-emotion-btn {
+            color: #000 !important;
+            display: flex !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="wave-background">
+        <div class="glow-effect"></div>
+        <div class="glow-effect-small"></div>
+        <div class="glow-effect-small-2"></div>
+    </div>
+
+    <nav class="nav">
+        <div class="nav-content">
+            <a href="#" class="logo">
+                <div class="logo-heart"></div>
+                心语安慰
+            </a>
+            <div class="tabs">
+                <a href="#" class="tab active">我现在的心情</a>
+                <a href="favorites.html" class="tab">我的收藏</a>
+                <a href="mood-analysis.html" class="tab">情绪分析</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <main class="main-content">
+            <div class="hero-section">
+                <h1 class="hero-title">用温暖的话语 抚慰你的心灵</h1>
+                <p class="hero-description">选择或描述情绪，获取温暖话语，享受心灵慰藉。</p>
+            </div>
+            
+            <div class="mood-grid">
+                <div class="mood-card">
+                    <span>喜悦</span>
+                </div>
+                <div class="mood-card">
+                    <span>忧伤</span>
+                </div>
+                <div class="mood-card">
+                    <span>烦躁</span>
+                </div>
+                <div class="mood-card">
+                    <span>安宁</span>
+                </div>
+                <div class="mood-card">
+                    <span>向往</span>
+                </div>
+                <div class="mood-card">
+                    <span>思念</span>
+                </div>
+                <div class="mood-card">
+                    <span>感动</span>
+                </div>
+                <div class="mood-card">
+                    <span>迷茫</span>
+                </div>
+                <div class="mood-card">
+                    <span>无奈</span>
+                </div>
+                <div class="mood-card add">
+                    <img src="icons/添加情绪词.svg" alt="添加情绪词" width="16" height="16">
+                </div>
+            </div>
+
+            <div class="text-input">
+                <div class="input-container">
+                    <textarea placeholder="或者，描述一下你的感受..."></textarea>
+                    <button class="clear-button" style="display: none;">
+                        <img src="icons/清空自定义输入内容.svg" alt="清除" width="16" height="16">
+                    </button>
+                    <button class="submit-button">确定</button>
+                </div>
+            </div>
+
+            <div id="results-container" style="display: none;">
+                <div class="quote-card fade-in" style="display: none;">
+                    <div class="quote-row">
+                    <div class="quote-content">
+                        "生活中最美好的事物都是免费的：阳光、空气、微笑和爱。"
+                    </div>
+                        <div class="quote-source">佚名</div>
+                    </div>
+                    <div class="quote-actions-row">
+                    <div class="quote-actions">
+                        <button class="action-button favorite-btn" title="添加到收藏">
+                            <img src="icons/添加收藏.svg" alt="添加收藏" width="18" height="18">
+                        </button>
+                        <button class="action-button copy-btn" data-content="生活中最美好的事物都是免费的：阳光、空气、微笑和爱。" title="复制文字">
+                            <img src="icons/复制.svg" alt="复制" width="18" height="18">
+                        </button>
+                        <span class="copy-tooltip">已复制</span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- 首先加载数据文件 -->
+    <script src="data.js"></script>
+    
+    <!-- 然后是调试脚本 -->
+    <script>
+        // 调试：验证数据加载
+        window.addEventListener('DOMContentLoaded', function() {
+            console.log('页面已加载');
+                console.log('moodQuotes 加载状态:', typeof window.moodQuotes !== 'undefined' ? '已加载' : '未加载');
+                if (window.moodQuotes) {
+                    console.log('可用情绪:', Object.keys(window.moodQuotes));
+                
+                // 验证引言数据的随机化
+                if(window.moodQuotes["喜悦"]) {
+                    const originalQuotes = window.moodQuotes["喜悦"];
+                    console.log("喜悦引言总数:", originalQuotes.length);
+                    
+                    // Fisher-Yates 洗牌算法
+                    function shuffleArray(array) {
+                        const shuffled = [...array]; // 创建数组副本
+                        for (let i = shuffled.length - 1; i > 0; i--) {
+                            const j = Math.floor(Math.random() * (i + 1));
+                            // 交换元素
+                            [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+                        }
+                        return shuffled;
+                    }
+                    
+                    // 使用Fisher-Yates洗牌算法随机排序
+                    const shuffled = shuffleArray(originalQuotes);
+                    
+                    // 检查排序是否有效
+                    let different = false;
+                    for(let i = 0; i < originalQuotes.length; i++) {
+                        if(originalQuotes[i].content !== shuffled[i].content) {
+                            different = true;
+                            break;
+                        }
+                    }
+                    console.log("随机化结果:", different ? "引言顺序已成功打乱" : "引言顺序未发生变化，请检查随机算法");
+                    
+                    // 验证数组长度不变
+                    console.log("随机化后数组长度:", shuffled.length, shuffled.length === originalQuotes.length ? "正确" : "有问题");
+                }
+            }
+        });
+    </script>
+    
+    <!-- 最后加载其他脚本 -->
+    <script src="api.js"></script>
+    <script src="mood-analysis.js"></script>
+    <script src="mood-interaction.js"></script>
+    <script src="mood-interaction-extension.js"></script>
+
+    <!-- 添加情绪词的模态框 -->
+    <div class="modal-overlay" id="add-emotion-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">添加情绪词</div>
+                <button class="modal-close" id="modal-close">
+                    <img src="icons/添加情绪词弹窗中的关闭.svg" alt="关闭" width="16" height="16">
+                </button>
+            </div>
+            <div class="modal-input-group">
+                <input type="text" class="modal-input" id="new-emotion-input" placeholder="例如：开心、失落、期待、感慨...">
+            </div>
+            <div class="modal-actions">
+                <button class="modal-button modal-button-cancel" id="modal-cancel">取消</button>
+                <button class="modal-button modal-button-add" id="modal-add">添加</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 在 setupMoodCardEvents 函数中
+
+        card.addEventListener('click', function() {
+            // 如果是添加按钮，执行添加操作
+            if (this.classList.contains('add')) {
+                console.log("点击了添加按钮，打开模态框");
+                openModal();
+                return;
+            }
+            
+            // 获取最新的情绪卡片集合
+            const allMoodCards = document.querySelectorAll('.mood-card');
+            
+            // 重置所有卡片状态
+            allMoodCards.forEach(c => {
+                if (!c.classList.contains('add')) {
+                    // 移除active类
+                    c.classList.remove('active');
+                    
+                    // 如果是普通情绪卡片
+                    if (!c.classList.contains('custom-emotion')) {
+                        c.style.background = 'transparent';
+                        c.style.color = '#fff';
+                        c.style.border = '1px solid #435249';
+                        
+                        const spanElement = c.querySelector('span');
+                        if (spanElement) {
+                            spanElement.style.fontWeight = 'normal';
+                        }
+                    } 
+                    // 如果是自定义情绪卡片
+                    else {
+                        c.style.background = 'transparent';
+                        c.style.color = '#fff';
+                        c.style.border = '1px solid #435249';
+                        
+                        const container = c.querySelector('.emotion-content');
+                        if (container) {
+                            const spanElement = container.querySelector('span');
+                            if (spanElement) {
+                                spanElement.style.fontWeight = 'normal';
+                            }
+                            
+                            const deleteBtn = container.querySelector('.delete-emotion-btn');
+                            if (deleteBtn) {
+                                deleteBtn.style.display = 'flex';
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // 为当前点击的卡片添加active状态
+            this.classList.add('active');
+            
+            // 如果是普通情绪卡片
+            if (!this.classList.contains('custom-emotion')) {
+                this.style.background = '#6AFFA0';
+                this.style.color = '#000';
+                this.style.border = 'none';
+                
+                const spanElement = this.querySelector('span');
+                if (spanElement) {
+                    spanElement.style.fontWeight = 'bold';
+                }
+            } 
+            // 如果是自定义情绪卡片
+            else {
+                this.style.background = '#6AFFA0';
+                this.style.color = '#000';
+                this.style.border = 'none';
+                
+                const container = this.querySelector('.emotion-content');
+                if (container) {
+                    const spanElement = container.querySelector('span');
+                    if (spanElement) {
+                        spanElement.style.fontWeight = 'bold';
+                    }
+                    
+                    // 添加状态监听，确保选中时删除按钮变为黑色
+                }
+            }
+        });
+    </script>
+</body>
+</html> 

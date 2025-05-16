@@ -1,0 +1,1456 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>心语安慰 - 情绪分析</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+    <style>
+        :root {
+            --primary-bg: #000000;
+            --secondary-bg: #121212;
+            --accent-color: #6AFFA0;
+            --accent-glow: rgba(106, 255, 160, 0.15);
+            --text-primary: #FFFFFF;
+            --text-secondary: #E0E0E0;
+            --card-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --transition-speed: 0.3s;
+            --positive-color: #6AFFA0;
+            --negative-color: #FF6B6B;
+            --neutral-color: #FFB86C;
+            --custom-color: #BD93F9;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--primary-bg);
+            color: var(--text-secondary);
+            line-height: 1.6;
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* 波纹动效背景 */
+        .wave-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            overflow: hidden;
+            z-index: 10;
+            pointer-events: none;
+        }
+
+        .glow-effect {
+            position: absolute;
+            top: calc(20% - 230px);
+            left: 50%;
+            transform: translateX(-50%);
+            width: 84%;
+            height: 300px;
+            background: radial-gradient(ellipse, rgba(106, 255, 160, 0.15), transparent 75%);
+            filter: blur(75px);
+            z-index: 0;
+            pointer-events: none;
+        }
+        
+        .glow-effect-small {
+            position: absolute;
+            top: calc(40% - 290px);
+            left: 30%;
+            width: 200px;
+            height: 200px;
+            background: radial-gradient(circle, rgba(106, 255, 160, 0.09), transparent 75%);
+            filter: blur(35px);
+            z-index: 0;
+            pointer-events: none;
+        }
+        
+        .glow-effect-small-2 {
+            position: absolute;
+            top: calc(30% - 290px);
+            left: 65%;
+            width: 150px;
+            height: 150px;
+            background: radial-gradient(circle, rgba(106, 255, 160, 0.07), transparent 75%);
+            filter: blur(35px);
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* 导航栏样式 */
+        .nav {
+            background: #141615;
+            backdrop-filter: blur(10px);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            padding: 0 0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            height: 64px;
+        }
+
+        .nav-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 2rem;
+            height: 64px;
+        }
+
+        .logo {
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .logo-heart {
+            position: relative;
+            width: 18px;
+            height: 18px;
+            background-color: var(--accent-color);
+            transform: rotate(45deg);
+            border-radius: 4px;
+            margin-right: 5px;
+        }
+        
+        .logo-heart::before,
+        .logo-heart::after {
+            content: '';
+            position: absolute;
+            width: 18px;
+            height: 18px;
+            background-color: var(--accent-color);
+            border-radius: 50%;
+        }
+        
+        .logo-heart::before {
+            top: -9px;
+            left: 0;
+        }
+        
+        .logo-heart::after {
+            top: 0;
+            left: -9px;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .tab {
+            color: var(--text-secondary);
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            transition: all var(--transition-speed);
+            position: relative;
+            opacity: 0.7;
+        }
+
+        .tab:hover {
+            background: var(--secondary-bg);
+            opacity: 1;
+        }
+
+        .tab.active {
+            background: var(--secondary-bg);
+            color: var(--text-primary);
+            opacity: 1;
+        }
+        
+        .tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: -11px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: calc(100% - 2rem);
+            height: 2px;
+            background-color: var(--accent-color);
+            box-shadow: 0 0 8px var(--accent-color);
+        }
+
+        /* 主要内容区域 */
+        .main-content {
+            margin-top: 10px;
+            padding: 2rem 0;
+        }
+
+        /* 英雄区样式 */
+        .hero-section {
+            margin: 2.5rem 0 2.5rem 0;
+            max-width: 800px;
+            text-align: center;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .hero-title {
+            font-size: 32px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: calc(0.75rem - 5px);
+            line-height: 1.4;
+            letter-spacing: 1px;
+        }
+        
+        .hero-title .highlight {
+            color: var(--text-primary);
+            position: relative;
+        }
+        
+        .hero-title .highlight::after {
+            display: none;
+        }
+        
+        .hero-description {
+            font-size: 15px;
+            color: var(--text-primary);
+            opacity: 0.55;
+            max-width: 600px;
+            line-height: 1.6;
+            margin-bottom: 0;
+            margin-left: auto;
+            margin-right: auto;
+            font-weight: normal;
+            margin-top: 0.5rem;
+        }
+
+        .page-title {
+            font-size: 1.8rem;
+            color: var(--text-primary);
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .page-title svg {
+            width: 24px;
+            height: 24px;
+            fill: var(--accent-color);
+        }
+
+        /* 分析卡片样式 */
+        .analysis-card {
+            background: var(--secondary-bg);
+            border-radius: 16px;
+            padding: 1.8rem;
+            margin: 1.5rem 0;
+            box-shadow: var(--card-shadow);
+            border: 1px solid rgba(106, 255, 160, 0.05);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .analysis-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(106, 255, 160, 0.03) 0%, transparent 100%);
+            pointer-events: none;
+        }
+
+        .card-title {
+            font-size: 1.3rem;
+            color: var(--text-primary);
+            margin-bottom: 1.5rem;
+            font-weight: 600;
+            position: relative;
+            z-index: 1;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 300px;
+            width: 100%;
+            margin-bottom: 1.5rem;
+            z-index: 1;
+        }
+
+        /* 图例样式 */
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin-top: 1.5rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            background: transparent;
+            border: none;
+            padding: 0.5rem 0.8rem;
+            border-radius: 8px;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        
+        .legend-item:hover {
+            background: rgba(106, 255, 160, 0.1);
+            border: none;
+        }
+
+        .legend-color {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .legend-text {
+            font-size: 0.9rem;
+        }
+
+        /* 时间范围选择 */
+        .time-filter {
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            margin: 30px 0 2rem 0;
+            position: relative;
+            z-index: 1;
+        }
+
+        .time-btn {
+            background: transparent;
+            border-radius: 8px;
+            border: 1px solid #435249;
+            color: #fff;
+            font-size: 14px;
+            font-family: 'PingFang HK', 'Inter', sans-serif;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 1.5rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: none;
+            font-weight: 400;
+            box-sizing: border-box;
+        }
+
+        .time-btn:hover {
+            background: #6AFFA0;
+            color: #000;
+            border: 1px solid transparent;
+        }
+
+        .time-btn.active {
+            background: #6AFFA0;
+            color: #000;
+            border: 1px solid transparent;
+        }
+
+        .time-btn:active {
+            transform: none;
+        }
+
+        .time-btn span {
+            font-size: 14px !important;
+            font-weight: normal !important;
+        }
+
+        .time-btn.active span {
+            font-weight: bold !important;
+            font-size: 14px !important;
+        }
+
+        .time-btn:hover span {
+            font-weight: bold !important;
+            font-size: 14px !important;
+        }
+
+        /* 统计摘要 */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .stat-item {
+            background: #000000;
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+            border: none;
+            transition: all var(--transition-speed);
+        }
+        
+        .stat-item:hover {
+            background: #000000;
+            border: none;
+        }
+        
+        .stat-item:active {
+            transform: none;
+            background: #000000;
+            border: none;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            color: var(--accent-color);
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .stat-label {
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+            opacity: 0.9;
+        }
+
+        /* 清除数据按钮 */
+        .clear-data {
+            background: transparent;
+            color: #FF6B6B;
+            border: 1px solid #FF6B6B;
+            border-radius: 8px;
+            padding: 0 1.8rem;
+            font-size: 14px;
+            height: 38px;
+            line-height: 38px;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 2rem;
+            display: block;
+            margin-left: auto; 
+            margin-right: auto;
+            position: relative;
+            overflow: hidden;
+            white-space: nowrap;
+        }
+        
+        .clear-data:hover {
+            background: rgba(255, 107, 107, 0.1);
+        }
+        
+        .clear-data:active {
+            transform: none;
+        }
+
+        /* 没有数据提示 */
+        .no-data {
+            text-align: center;
+            padding: 4rem 2rem;
+            background: var(--secondary-bg);
+            border-radius: 16px;
+            margin: 30px 0 2rem 0;
+            border: 1px solid rgba(106, 255, 160, 0.05);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .no-data::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(106, 255, 160, 0.03) 0%, transparent 100%);
+            pointer-events: none;
+        }
+
+        .no-data svg {
+            width: 64px;
+            height: 64px;
+            margin-bottom: 1.5rem;
+            stroke: var(--accent-color);
+            fill: none;
+            opacity: 0.7;
+        }
+
+        .no-data-title {
+            font-size: 1.5rem;
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+        }
+
+        .no-data-text {
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+        
+        /* 动画效果 */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease-out forwards;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+
+            .nav-content {
+                flex-direction: column;
+                gap: 16px;
+            }
+
+            .tabs {
+                width: 100%;
+                justify-content: space-between;
+            }
+            
+            .hero-title {
+                font-size: 3.5rem;
+            }
+            
+            .time-filter {
+                flex-wrap: wrap;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero-title {
+                font-size: 2.8rem;
+            }
+            
+            .stat-item {
+                padding: 1rem;
+            }
+            
+            .stat-value {
+                font-size: 1.5rem;
+            }
+        }
+
+        /* 图表标签样式 */
+        .emotion-distribution {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            width: 100%;
+            padding-top: 20px;
+        }
+        
+        .chart-wrapper {
+            position: relative;
+            width: 100%;
+            height: 300px;
+            margin: 0 auto;
+        }
+        
+        .distribution-chart-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+        
+        #custom-distribution-chart {
+            position: relative;
+            width: 240px;
+            height: 240px;
+            margin: 0 auto;
+        }
+        
+        .chart-segment {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            clip-path: path('');
+            transform-origin: center;
+        }
+        
+        .emotion-label {
+            position: absolute;
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            white-space: nowrap;
+            z-index: 10;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        
+        .label-line {
+            position: absolute;
+            background-color: rgba(255, 255, 255, 0.5);
+            height: 2px;
+            transform-origin: 0 0;
+            z-index: 5;
+        }
+        
+        .distribution-legend {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 8px 12px;
+            border-radius: 6px;
+            transition: transform 0.3s, background 0.3s;
+            }
+            
+        .legend-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        .legend-item:active {
+            transform: none;
+        }
+        
+        .legend-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        
+        .chart-center {
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            background-color: var(--primary-bg);
+            border-radius: 50%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .total-count {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--text-primary);
+        }
+        
+        .total-label {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        /* 简单情绪分布样式 */
+        .simple-distribution {
+            margin: 20px 0;
+            width: 100%;
+        }
+        
+        .distribution-items {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            width: 100%;
+        }
+        
+        .distribution-item {
+            background: transparent;
+            border-radius: 10px;
+            padding: 16px;
+            position: relative;
+            transition: transform 0.3s ease;
+            border-bottom: none;
+        }
+        
+        .distribution-item:hover {
+            background: transparent;
+        }
+        
+        .distribution-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        
+        .emotion-name {
+            font-size: 16px;
+            font-weight: 500;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .emotion-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+        
+        .emotion-counts {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+        
+        .progress-bar {
+            height: 8px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="wave-background">
+        <div class="glow-effect"></div>
+        <div class="glow-effect-small"></div>
+        <div class="glow-effect-small-2"></div>
+    </div>
+
+    <nav class="nav">
+        <div class="nav-content">
+            <a href="index.html" class="logo">
+                <div class="logo-heart"></div>
+                心语安慰
+            </a>
+            <div class="tabs">
+                <a href="index.html" class="tab">我现在的心情</a>
+                <a href="favorites.html" class="tab">我的收藏</a>
+                <a href="#" class="tab active">情绪分析</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <main class="main-content">
+            <div class="hero-section">
+                <h1 class="hero-title">洞察 你的情绪轨迹</h1>
+                <p class="hero-description">探索情绪变化，认识心境起伏，发现内心声音。</p>
+            </div>
+
+            <div class="time-filter">
+                
+                <button class="time-btn active" data-period="week"><span>最近一周</span></button>
+                <button class="time-btn" data-period="month"><span>最近一个月</span></button>
+                <button class="time-btn" data-period="year"><span>最近一年</span></button>
+                <button class="time-btn" data-period="all"><span>全部时间</span></button>
+            </div>
+
+            <div id="analysis-container">
+            <div class="analysis-card">
+                    <h3 class="card-title">情绪数据摘要</h3>
+                    <div class="stats-grid" id="statsGrid">
+                        <!-- 统计摘要将由JS动态生成 -->
+                </div>
+            </div>
+
+            <div class="analysis-card">
+                    <h3 class="card-title">情绪类型占比</h3>
+                <div class="chart-container">
+                        <canvas id="moodPieChart"></canvas>
+                </div>
+                    <div id="moodPieLegend" class="legend" style="margin-top: 20px; display: flex; justify-content: center; gap: 15px; flex-wrap: wrap;"></div>
+            </div>
+
+            <div class="analysis-card">
+                    <h3 class="card-title">情绪详细分布</h3>
+                    <div class="simple-distribution">
+                        <div class="distribution-items" id="distribution-items">
+                            <!-- 情绪分布条目将通过JS填充 -->
+                </div>
+                    </div>
+                    </div>
+                
+                </div>
+                
+            <div id="no-data" style="display: none;" class="no-data">
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="12" cy="12" r="10" stroke-width="2" />
+                    <path d="M12 8v4l3 3" stroke-width="2" stroke-linecap="round" />
+                </svg>
+                <h3 class="no-data-title">暂无情绪数据</h3>
+                <p class="no-data-text">随着你在「我现在的心情」页面选择情绪或输入文字，我们会开始记录并分析你的情绪数据。</p>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // 注册Chart.js的datalabels插件
+        Chart.register(ChartDataLabels);
+        
+        // 创建模拟数据对象，用于测试和展示
+        if (!window.moodAnalytics) {
+            console.log("创建模拟情绪数据对象");
+            window.moodAnalytics = {
+                hasMoodData: function() {
+                    return true; // 始终返回true表示有数据
+                },
+                getMoodDistribution: function(period) {
+                    // 根据不同时间段返回不同的模拟数据
+                    if (period === 'week') {
+                        return {
+                            '喜悦': 8,
+                            '忧伤': 5,
+                            '担忧': 3,
+                            '烦躁': 6,
+                            '安宁': 7,
+                            '向往': 4,
+                            '思念': 2
+                        };
+                    } else if (period === 'month') {
+                        return {
+                            '喜悦': 26,
+                            '忧伤': 18,
+                            '担忧': 12,
+                            '烦躁': 21,
+                            '安宁': 24,
+                            '向往': 15,
+                            '思念': 9,
+                            '感动': 7
+                        };
+                    } else if (period === 'year') {
+                        return {
+                            '喜悦': 94,
+                            '忧伤': 68,
+                            '担忧': 45,
+                            '烦躁': 76,
+                            '安宁': 84,
+                            '向往': 52,
+                            '思念': 37,
+                            '感动': 29,
+                            '迷茫': 41,
+                            '无奈': 33
+                        };
+                    } else { // all
+                        return {
+                            '喜悦': 156,
+                            '忧伤': 103,
+                            '担忧': 87,
+                            '烦躁': 119,
+                            '安宁': 142,
+                            '向往': 78,
+                            '思念': 65,
+                            '感动': 47,
+                            '迷茫': 59,
+                            '无奈': 72,
+                            '疲惫': 38,
+                            '兴奋': 41
+                        };
+                    }
+                },
+                getMoodTrend: function(period) {
+                    // 返回模拟的情绪趋势数据
+                    if (period === 'month') {
+                        const days = Array.from({length: 30}, (_, i) => `${i + 1}日`);
+                        return {
+                            labels: days,
+                            positive: [3, 5, 2, 6, 4, 8, 7, 5, 3, 6, 8, 4, 2, 5, 7, 9, 6, 3, 5, 7, 4, 3, 6, 8, 5, 4, 7, 6, 9, 8],
+                            negative: [2, 4, 6, 3, 5, 1, 2, 3, 5, 2, 1, 3, 6, 4, 2, 1, 3, 5, 2, 1, 4, 6, 3, 1, 2, 5, 3, 1, 2, 1],
+                            neutral: [1, 2, 1, 3, 2, 1, 4, 2, 3, 1, 3, 2, 1, 3, 1, 2, 1, 2, 3, 2, 1, 2, 0, 1, 3, 2, 0, 3, 1, 3]
+                        };
+                    } else if (period === 'week') {
+                        return {
+                            labels: ['周一', '周二', '周三', '周四', '周五', '周六', '周日'],
+                            positive: [3, 5, 2, 6, 4, 8, 7],
+                            negative: [2, 4, 6, 3, 5, 1, 2],
+                            neutral: [1, 2, 1, 3, 2, 1, 4]
+                        };
+                    } else if (period === 'year') {
+                        return {
+                            labels: ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'],
+                            positive: [12, 15, 19, 22, 18, 24, 28, 25, 20, 17, 21, 23],
+                            negative: [8, 10, 12, 9, 13, 7, 6, 8, 11, 14, 10, 9],
+                            neutral: [5, 4, 6, 8, 7, 6, 9, 7, 5, 6, 8, 7]
+                        };
+                    } else { // all
+                        return {
+                            labels: ['2021', '2022', '2023', '2024'],
+                            positive: [120, 156, 185, 142],
+                            negative: [95, 82, 114, 101],
+                            neutral: [75, 63, 88, 73]
+                        };
+                    }
+                },
+                getStats: function(period) {
+                    // 不同时间段的统计数据
+                    if (period === 'week') {
+                        return {
+                            totalEntries: 35,
+                            mostFrequentMood: '喜悦',
+                            positivePercentage: 54.3,
+                            averageEntriesPerDay: 5.0
+                        };
+                    } else if (period === 'month') {
+                        return {
+                            totalEntries: 132,
+                            mostFrequentMood: '喜悦',
+                            positivePercentage: 49.2,
+                            averageEntriesPerDay: 4.4
+                        };
+                    } else if (period === 'year') {
+                        return {
+                            totalEntries: 559,
+                            mostFrequentMood: '喜悦',
+                            positivePercentage: 46.5,
+                            averageEntriesPerDay: 3.8
+                        };
+                    } else { // all
+                        return {
+                            totalEntries: 1007,
+                            mostFrequentMood: '喜悦',
+                            positivePercentage: 43.2,
+                            averageEntriesPerDay: 2.9
+                        };
+                    }
+                },
+                clearAllData: function() {
+                    console.log('模拟清除数据');
+                    return true;
+                }
+            };
+        }
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log("情绪分析页面加载完成");
+            
+            const analysisContainer = document.getElementById('analysis-container');
+            const noDataContainer = document.getElementById('no-data');
+            const timeBtns = document.querySelectorAll('.time-btn');
+            
+            // 当前选中的时间范围
+            let currentPeriod = 'week';
+            
+            // 检查是否有情绪数据
+            function checkMoodData() {
+                if (window.moodAnalytics && window.moodAnalytics.hasMoodData()) {
+                    analysisContainer.style.display = 'block';
+                    noDataContainer.style.display = 'none';
+                    renderCharts();
+                } else {
+                    analysisContainer.style.display = 'none';
+                    noDataContainer.style.display = 'block';
+                }
+            }
+            
+            // 渲染所有图表和统计
+            function renderCharts() {
+                renderMoodDistribution();
+                renderMoodPieChart();
+                renderStats();
+            }
+            
+            // 渲染情绪分布饼图
+            function renderMoodPieChart() {
+                const ctx = document.getElementById('moodPieChart').getContext('2d');
+                const moodData = window.moodAnalytics.getMoodDistribution(currentPeriod);
+                
+                // 如果没有数据，显示默认信息
+                if (Object.keys(moodData).length === 0) {
+                    renderEmptyChart(ctx, '暂无情绪类型数据');
+                    return;
+                }
+                
+                // 清除旧图表
+                if (window.pieChart) {
+                    window.pieChart.destroy();
+                }
+                
+                // 情绪分类
+                const categories = {
+                    positive: { label: '积极情绪', count: 0, color: 'rgba(106, 255, 160, 0.85)' },
+                    negative: { label: '消极情绪', count: 0, color: 'rgba(255, 107, 107, 0.85)' }, 
+                    neutral: { label: '中性情绪', count: 0, color: 'rgba(255, 184, 108, 0.85)' },
+                    other: { label: '其他情绪', count: 0, color: 'rgba(189, 147, 249, 0.85)' }
+                };
+                
+                // 情绪分类定义
+                const positiveEmotions = ['喜悦', '安宁', '感动', '欣喜', '满足', '开心', '幸福'];
+                const negativeEmotions = ['忧伤', '担忧', '烦躁', '无奈', '迷茫', '恐惧', '焦虑'];
+                const neutralEmotions = ['向往', '思念', '平静', '淡然'];
+                
+                // 汇总数据
+                Object.keys(moodData).forEach(mood => {
+                    const count = moodData[mood];
+                    
+                    if (positiveEmotions.includes(mood)) {
+                        categories.positive.count += count;
+                    } else if (negativeEmotions.includes(mood)) {
+                        categories.negative.count += count;
+                    } else if (neutralEmotions.includes(mood)) {
+                        categories.neutral.count += count;
+                    } else {
+                        categories.other.count += count;
+                    }
+                });
+                
+                // 构建图表数据
+                const labels = [];
+                const data = [];
+                const colors = [];
+                const total = Object.values(categories).reduce((sum, category) => sum + category.count, 0);
+                
+                // 只添加有数据的类别
+                Object.values(categories).forEach(category => {
+                    if (category.count > 0) {
+                        labels.push(category.label);
+                        data.push(category.count);
+                        colors.push(category.color);
+                    }
+                });
+                
+                // 创建环形图
+                window.pieChart = new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            data: data,
+                            backgroundColor: colors,
+                            borderColor: 'rgba(0, 0, 0, 0.1)',
+                            borderWidth: 2,
+                            hoverOffset: 15
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        cutout: '50%',
+                        layout: {
+                            padding: 20
+                        },
+                        plugins: {
+                            legend: {
+                                display: false
+                            },
+                            tooltip: {
+                                backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                                padding: 12,
+                                titleFont: {
+                                    size: 16,
+                                    weight: 'bold'
+                                },
+                                bodyFont: {
+                                    size: 14
+                                },
+                                callbacks: {
+                                    label: function(context) {
+                                        const value = context.raw;
+                                        const percentage = ((value / total) * 100).toFixed(1);
+                                        return `${value}次 (${percentage}%)`;
+                                    }
+                                }
+                            },
+                            datalabels: {
+                                color: '#fff',
+                                font: {
+                                    weight: 'bold',
+                                    size: 14
+                                },
+                                formatter: (value, ctx) => {
+                                    const percentage = ((value / total) * 100).toFixed(0);
+                                    return percentage + '%';
+                                }
+                            }
+                        },
+                        animation: {
+                            animateScale: true,
+                            animateRotate: true,
+                            duration: 1000
+                        }
+                    }
+                });
+                
+                // 创建自定义图例
+                const legendEl = document.getElementById('moodPieLegend');
+                legendEl.innerHTML = '';
+                
+                labels.forEach((label, index) => {
+                    const percentage = ((data[index] / total) * 100).toFixed(1);
+                    const legendItem = document.createElement('div');
+                    legendItem.className = 'legend-item';
+                    legendItem.style.display = 'flex';
+                    legendItem.style.alignItems = 'center';
+                    legendItem.style.gap = '8px';
+                    legendItem.style.padding = '8px 12px';
+                    legendItem.style.background = 'transparent';
+                    legendItem.style.borderRadius = '6px';
+                    legendItem.style.border = 'none';
+                    
+                    const colorBox = document.createElement('div');
+                    colorBox.style.width = '12px';
+                    colorBox.style.height = '12px';
+                    colorBox.style.borderRadius = '50%';
+                    colorBox.style.backgroundColor = colors[index];
+                    
+                    const labelText = document.createElement('span');
+                    labelText.textContent = `${label}： ${data[index]}次 (${percentage}%)`;
+                    
+                    legendItem.appendChild(colorBox);
+                    legendItem.appendChild(labelText);
+                    legendEl.appendChild(legendItem);
+                });
+            }
+            
+            // 渲染情绪分布饼图
+            function renderMoodDistribution() {
+                // 获取模拟数据
+                const moodData = window.moodAnalytics.getMoodDistribution(currentPeriod);
+                
+                // 获取容器
+                const container = document.getElementById('distribution-items');
+                container.innerHTML = '';
+                
+                // 如果没有数据，显示默认信息
+                if (Object.keys(moodData).length === 0) {
+                    container.innerHTML = '<div class="no-data-message">暂无情绪分布数据</div>';
+                    return;
+                }
+                
+                // 准备数据
+                const labels = Object.keys(moodData);
+                const data = Object.values(moodData);
+                const total = data.reduce((a, b) => a + b, 0);
+                
+                // 准备颜色
+                const backgroundColors = labels.map(label => {
+                    // 根据情绪类型分配不同颜色
+                    const positiveEmotions = ['喜悦', '安宁', '感动'];
+                    const negativeEmotions = ['忧伤', '担忧', '烦躁', '无奈'];
+                    const neutralEmotions = ['向往', '思念', '迷茫'];
+                    
+                    if (positiveEmotions.includes(label)) {
+                        return 'rgba(106, 255, 160, 0.85)';
+                    } else if (negativeEmotions.includes(label)) {
+                        return 'rgba(255, 107, 107, 0.85)';
+                    } else if (neutralEmotions.includes(label)) {
+                        return 'rgba(255, 184, 108, 0.85)';
+                    } else {
+                        return 'rgba(189, 147, 249, 0.85)';
+                    }
+                });
+                
+                // 对数据进行排序 - 从高到低
+                const sortedIndices = data.map((value, index) => ({ value, index }))
+                                        .sort((a, b) => b.value - a.value)
+                                        .map(item => item.index);
+                
+                // 创建每个情绪的项目
+                sortedIndices.forEach(index => {
+                    const value = data[index];
+                    const label = labels[index];
+                    const color = backgroundColors[index];
+                    const percentage = (value / total * 100).toFixed(1);
+                    
+                    const item = document.createElement('div');
+                    item.className = 'distribution-item';
+                    
+                    const headerDiv = document.createElement('div');
+                    headerDiv.className = 'distribution-item-header';
+                    
+                    const nameDiv = document.createElement('div');
+                    nameDiv.className = 'emotion-name';
+                    
+                    // 添加情绪类型小圆点
+                    const emotionDot = document.createElement('div');
+                    emotionDot.className = 'emotion-dot';
+                    emotionDot.style.backgroundColor = color;
+                    nameDiv.appendChild(emotionDot);
+                    
+                    // 添加情绪词文本
+                    const nameText = document.createTextNode(label);
+                    nameDiv.appendChild(nameText);
+                    
+                    const countsDiv = document.createElement('div');
+                    countsDiv.className = 'emotion-counts';
+                    countsDiv.textContent = value + '次 ' + percentage + '%';
+                    
+                    headerDiv.appendChild(nameDiv);
+                    headerDiv.appendChild(countsDiv);
+                    
+                    const progressBar = document.createElement('div');
+                    progressBar.className = 'progress-bar';
+                    
+                    const progressFill = document.createElement('div');
+                    progressFill.className = 'progress-fill';
+                    progressFill.style.width = percentage + '%';
+                    // 统一使用主题绿色
+                    progressFill.style.backgroundColor = 'var(--accent-color)';
+                    
+                    progressBar.appendChild(progressFill);
+                    
+                    item.appendChild(headerDiv);
+                    item.appendChild(progressBar);
+                    
+                    container.appendChild(item);
+                });
+            }
+            
+            // 渲染情绪趋势线图
+            function renderMoodTrend() {
+                const ctx = document.getElementById('moodTrend').getContext('2d');
+                const trendData = window.moodAnalytics.getMoodTrend(currentPeriod);
+                
+                // 如果没有数据，显示默认信息
+                if (!trendData || trendData.labels.length === 0) {
+                    renderEmptyChart(ctx, '暂无情绪趋势数据');
+                    return;
+                }
+                
+                // 清除旧图表
+                if (window.trendChart) {
+                    window.trendChart.destroy();
+                }
+                
+                // 创建线图
+                window.trendChart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: trendData.labels,
+                        datasets: [
+                            {
+                                label: '积极情绪',
+                                data: trendData.positive,
+                                borderColor: 'rgba(106, 255, 160, 1)',
+                                backgroundColor: 'rgba(106, 255, 160, 0.1)',
+                                borderWidth: 2,
+                                pointRadius: 3,
+                                pointBackgroundColor: 'rgba(106, 255, 160, 1)',
+                                fill: true,
+                                tension: 0.4
+                            },
+                            {
+                                label: '消极情绪',
+                                data: trendData.negative,
+                                borderColor: 'rgba(255, 107, 107, 1)',
+                                backgroundColor: 'rgba(255, 107, 107, 0.1)',
+                                borderWidth: 2,
+                                pointRadius: 3,
+                                pointBackgroundColor: 'rgba(255, 107, 107, 1)',
+                                fill: true,
+                                tension: 0.4
+                            },
+                            {
+                                label: '中性情绪',
+                                data: trendData.neutral,
+                                borderColor: 'rgba(255, 184, 108, 1)',
+                                backgroundColor: 'rgba(255, 184, 108, 0.1)',
+                                borderWidth: 2,
+                                pointRadius: 3,
+                                pointBackgroundColor: 'rgba(255, 184, 108, 1)',
+                                fill: true,
+                                tension: 0.4
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            x: {
+                                grid: {
+                                    color: 'rgba(255, 255, 255, 0.05)'
+                                },
+                                ticks: {
+                                    color: 'rgba(255, 255, 255, 0.7)'
+                                }
+                            },
+                            y: {
+                                beginAtZero: true,
+                                grid: {
+                                    color: 'rgba(255, 255, 255, 0.05)'
+                                },
+                                ticks: {
+                                    color: 'rgba(255, 255, 255, 0.7)'
+                                }
+                            }
+                        },
+                        elements: {
+                            line: {
+                                tension: 0.4
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                position: 'top',
+                                labels: {
+                                    boxWidth: 12,
+                                    usePointStyle: true,
+                                    padding: 20,
+                                    color: 'rgba(224, 224, 224, 0.8)'
+                                }
+                            },
+                            tooltip: {
+                                backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                                bodyFont: {
+                                    size: 13
+                                },
+                                titleFont: {
+                                    size: 14,
+                                    weight: 'bold'
+                                },
+                                callbacks: {
+                                    label: function(context) {
+                                        return `${context.dataset.label}： ${context.raw}次`;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+            
+            // 渲染统计数据
+            function renderStats() {
+                const statsGrid = document.getElementById('statsGrid');
+                const stats = window.moodAnalytics.getStats(currentPeriod);
+                
+                statsGrid.innerHTML = '';
+                
+                // 添加统计项
+                addStatItem(statsGrid, stats.totalEntries, '记录条数');
+                addStatItem(statsGrid, stats.mostFrequentMood, '最常见情绪');
+                addStatItem(statsGrid, stats.positivePercentage + '%', '积极情绪占比');
+                addStatItem(statsGrid, stats.averageEntriesPerDay.toFixed(1), '每日平均记录');
+            }
+            
+            // 添加统计项
+            function addStatItem(container, value, label) {
+                const item = document.createElement('div');
+                item.className = 'stat-item';
+                
+                const valueEl = document.createElement('div');
+                valueEl.className = 'stat-value';
+                valueEl.textContent = value;
+                
+                const labelEl = document.createElement('div');
+                labelEl.className = 'stat-label';
+                labelEl.textContent = label;
+                
+                item.appendChild(valueEl);
+                item.appendChild(labelEl);
+                container.appendChild(item);
+            }
+            
+            // 渲染空图表
+            function renderEmptyChart(ctx, message) {
+                // 清除可能已存在的图表
+                if (ctx.chart) {
+                    ctx.chart.destroy();
+                }
+                
+                const emptyChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: [''],
+                        datasets: []
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                display: false
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                display: false
+                            },
+                            tooltip: {
+                                enabled: false
+                            }
+                        },
+                        animation: false,
+                        onRender: function() {
+                            const ctx = this.ctx;
+                            ctx.textAlign = 'center';
+                            ctx.textBaseline = 'middle';
+                            ctx.font = '16px Inter';
+                            ctx.fillStyle = 'rgba(224, 224, 224, 0.6)';
+                            ctx.fillText(message, this.width / 2, this.height / 2);
+                            ctx.restore();
+                        }
+                    }
+                });
+                
+                return emptyChart;
+            }
+            
+            // 设置时间范围按钮事件
+            timeBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    timeBtns.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    currentPeriod = btn.getAttribute('data-period');
+                    renderCharts();
+                });
+            });
+            
+            // 清除数据按钮事件
+            
+            // 初始检查数据并渲染
+            if (window.moodAnalytics) {
+                checkMoodData();
+            } else {
+                // 如果moodAnalytics模块还没有加载，等待加载
+                window.addEventListener('moodAnalyticsReady', checkMoodData);
+            }
+        });
+    </script>
+    
+    <!-- 调试脚本 -->
+    <script src="time-button-debug.js"></script>
+</body>
+</html> 

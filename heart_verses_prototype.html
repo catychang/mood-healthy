@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>心语安慰 - 低保真原型</title>
+    <style>
+        /* 全局样式 */
+        body {
+            font-family: 'Inter', 'Montserrat', 'Roboto', sans-serif;
+            background-color: #071323;
+            color: #E0E0E0;
+            margin: 0;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        
+        /* 标题样式 */
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #FFFFFF;
+        }
+        
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.8;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        /* 标签页样式 */
+        .tabs {
+            display: flex;
+            justify-content: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 30px;
+        }
+        
+        .tab {
+            padding: 12px 20px;
+            font-size: 1rem;
+            cursor: pointer;
+            margin: 0 5px;
+            position: relative;
+            opacity: 0.7;
+            transition: opacity 0.3s;
+        }
+        
+        .tab.active {
+            opacity: 1;
+        }
+        
+        .tab.active:after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background-color: #BB86FC;
+        }
+        
+        /* 情绪选择区域 */
+        .mood-selection {
+            margin-bottom: 30px;
+        }
+        
+        .mood-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 15px;
+        }
+        
+        @media (max-width: 768px) {
+            .mood-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .mood-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        .mood-card {
+            background-color: #10202E;
+            border-radius: 8px;
+            padding: 20px 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.2s, background-color 0.2s;
+        }
+        
+        .mood-card:hover {
+            background-color: #1E3148;
+            border: 1px solid #BB86FC;
+        }
+        
+        .mood-card.active {
+            background-color: #1E3148;
+            border: 1px solid #BB86FC;
+        }
+        
+        .mood-card.add {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+        }
+        
+        /* 文本输入区域 */
+        .text-input {
+            margin-bottom: 30px;
+        }
+        
+        .text-input label {
+            display: block;
+            margin-bottom: 10px;
+            opacity: 0.8;
+        }
+        
+        .text-input textarea {
+            width: 100%;
+            background-color: #10202E;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 15px;
+            color: #E0E0E0;
+            font-family: inherit;
+            resize: vertical;
+            min-height: 100px;
+            transition: border-color 0.3s;
+        }
+        
+        .text-input textarea:focus {
+            outline: none;
+            border-color: #BB86FC;
+        }
+        
+        /* 结果展示区域 */
+        .results {
+            margin-bottom: 50px;
+        }
+        
+        .results-header {
+            margin-bottom: 20px;
+        }
+        
+        .results-header h2 {
+            font-size: 1.8rem;
+            margin-bottom: 5px;
+            color: #FFFFFF;
+        }
+        
+        .results-header p {
+            opacity: 0.7;
+        }
+        
+        .quote-card {
+            background-color: #10202E;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            position: relative;
+            border-left: 4px solid #BB86FC;
+        }
+        
+        .quote-content {
+            font-style: italic;
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+        
+        .quote-source {
+            text-align: right;
+            opacity: 0.7;
+            font-size: 0.9rem;
+        }
+        
+        .quote-actions {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            display: flex;
+        }
+        
+        .quote-action {
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            margin-left: 10px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        .quote-action:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+        
+        .show-more {
+            display: block;
+            width: 200px;
+            margin: 20px auto;
+            padding: 12px 20px;
+            background-color: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 50px;
+            color: #E0E0E0;
+            text-align: center;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        .show-more:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+        
+        /* 我的收藏页面 */
+        .favorites {
+            display: none;
+        }
+        
+        /* 历史记录页面 */
+        .history {
+            display: none;
+        }
+        
+        /* 活动标签页显示 */
+        .tab-content.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 网站标题 -->
+        <header class="header">
+            <h1>心语安慰</h1>
+            <p>选择你今天的感受，我们将提供安慰和指导的话语</p>
+        </header>
+        
+        <!-- 标签页 -->
+        <div class="tabs">
+            <div class="tab active">我现在的心情</div>
+            <div class="tab">我的收藏</div>
+            <div class="tab">历史记录</div>
+        </div>
+        
+        <!-- 我现在的心情（主页） -->
+        <div class="tab-content active">
+            <!-- 情绪选择区域 -->
+            <section class="mood-selection">
+                <div class="mood-grid">
+                    <div class="mood-card">喜悦</div>
+                    <div class="mood-card">忧伤</div>
+                    <div class="mood-card">担忧</div>
+                    <div class="mood-card">烦躁</div>
+                    <div class="mood-card">安宁</div>
+                    <div class="mood-card active">向往</div>
+                    <div class="mood-card">思念</div>
+                    <div class="mood-card">感动</div>
+                    <div class="mood-card">迷茫</div>
+                    <div class="mood-card">无奈</div>
+                    <div class="mood-card add">+</div>
+                </div>
+            </section>
+            
+            <!-- 文本输入区域 -->
+            <section class="text-input">
+                <label>或者，描述一下你的感受...</label>
+                <textarea placeholder="输入你的感受或心情..."></textarea>
+            </section>
+            
+            <!-- 结果展示区域 -->
+            <section class="results">
+                <div class="results-header">
+                    <h2>向往</h2>
+                    <p>对未来美好事物的期待与憧憬</p>
+                </div>
+                
+                <!-- 鼓励语句卡片 -->
+                <div class="quote-card">
+                    <div class="quote-content">
+                        "人生最曼妙的风景，是内心的淡定与从容。用心感受生活中的每一个当下，活在未来只是徒增烦恼，而生活在过去又会错过现在的美好。"
+                    </div>
+                    <div class="quote-source">— 佚名</div>
+                    <div class="quote-actions">
+                        <div class="quote-action">❤</div>
+                        <div class="quote-action">↗</div>
+                    </div>
+                </div>
+                
+                <div class="quote-card">
+                    <div class="quote-content">
+                        "向往是人类前进的动力，就像候鸟知道何时启程却不知道终点在哪。在向往的路上，每一步都是风景，每一天都是礼物。"
+                    </div>
+                    <div class="quote-source">— 《生活的艺术》</div>
+                    <div class="quote-actions">
+                        <div class="quote-action">❤</div>
+                        <div class="quote-action">↗</div>
+                    </div>
+                </div>
+                
+                <div class="quote-card">
+                    <div class="quote-content">
+                        "当你全心全意向往某种美好，整个宇宙都会联合起来帮助你。心之所向，身之所往。你真心渴望的，终将实现。"
+                    </div>
+                    <div class="quote-source">— 保罗·柯艾略</div>
+                    <div class="quote-actions">
+                        <div class="quote-action">❤</div>
+                        <div class="quote-action">↗</div>
+                    </div>
+                </div>
+                
+                <div class="quote-card">
+                    <div class="quote-content">
+                        "理想的路总是为有信心的人预备着。你心中的向往，正是你与生俱来的使命，去追寻它，哪怕只为那一瞬的心灵震颤。"
+                    </div>
+                    <div class="quote-source">— 林清玄</div>
+                    <div class="quote-actions">
+                        <div class="quote-action">❤</div>
+                        <div class="quote-action">↗</div>
+                    </div>
+                </div>
+                
+                <div class="quote-card">
+                    <div class="quote-content">
+                        "向往不是一味的追求，而是一种内心的笃定。无论遇到什么样的困难，都不会轻易放弃自己的梦想。这种坚持，是生命最动人的模样。"
+                    </div>
+                    <div class="quote-source">— 《成长的故事》</div>
+                    <div class="quote-actions">
+                        <div class="quote-action">❤</div>
+                        <div class="quote-action">↗</div>
+                    </div>
+                </div>
+                
+                <button class="show-more">显示更多</button>
+            </section>
+        </div>
+        
+        <!-- 我的收藏（隐藏） -->
+        <div class="tab-content favorites">
+            <h2>我的收藏</h2>
+            <p>这里会显示您收藏的鼓励话语</p>
+        </div>
+        
+        <!-- 历史记录（隐藏） -->
+        <div class="tab-content history">
+            <h2>历史记录</h2>
+            <p>这里会显示您的情绪历史记录</p>
+        </div>
+    </div>
+</body>
+</html> 
