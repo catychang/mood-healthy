@@ -302,6 +302,7 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log("显示新的引言组, 剩余引言数:", remainingQuotes);
         console.log("当前情绪:", currentMood);
         console.log("引言总数:", allQuotes.length);
+        console.log("已使用引言索引数量:", usedQuoteIndices.size);
         
         // 如果没有更多引言，但仍然保持按钮可见用于演示效果
         if (quotesToShow <= 0) {
@@ -310,20 +311,48 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
         
-        // 找到未显示过的引言
-        let shownCount = 0;
-        for (let i = 0; i < allQuotes.length && shownCount < quotesToShow; i++) {
+        // 清除当前显示的引言，确保每次都是全新展示的内容
+        clearQuotes();
+        
+        // 用于存储本轮将显示的索引
+        let indicesToShow = [];
+        
+        // 获取所有未使用的索引，并按顺序存储 - 改为顺序选择而非随机选择
+        let unusedIndices = [];
+        for (let i = 0; i < allQuotes.length; i++) {
             if (!usedQuoteIndices.has(i)) {
-                const quote = allQuotes[i];
-                console.log("创建引言卡片:", shownCount + 1, "内容:", quote.content.substring(0, 30) + "...");
-                const card = createQuoteCard(quote);
-                if (card) {
-                    console.log("引言卡片创建成功");
-                    usedQuoteIndices.add(i); // 标记为已使用
-                    shownCount++;
-                } else {
-                    console.error("引言卡片创建失败");
-                }
+                unusedIndices.push(i);
+            }
+        }
+        
+        // 按顺序从未使用的索引中选择要显示的索引，不再随机抽取
+        // 每次显示固定数量，确保所有引言都会被顺序展示一遍
+        for (let i = 0; i < quotesToShow; i++) {
+            if (unusedIndices.length > 0) {
+                // 取出第一个未使用的索引（顺序获取）
+                const quoteIndex = unusedIndices[0];
+                
+                // 将选中的索引添加到将要显示的列表中
+                indicesToShow.push(quoteIndex);
+                
+                // 从未使用列表中移除该索引
+                unusedIndices.shift(); // 移除第一个元素
+            }
+        }
+        
+        // 显示选中的引言
+        for (const index of indicesToShow) {
+            const quote = allQuotes[index];
+            console.log("创建引言卡片, 索引:", index, "内容:", quote.content.substring(0, 30) + "...");
+            
+            // 不管卡片是否创建成功，都标记该索引为已使用 - 防止漏标记导致重复
+            usedQuoteIndices.add(index);
+            
+            const card = createQuoteCard(quote);
+            if (!card) {
+                console.error("引言卡片创建失败");
+            } else {
+                console.log("引言卡片创建成功");
             }
         }
         

@@ -530,27 +530,55 @@
             }
 
             .nav-content {
-                flex-direction: column;
-                gap: 16px;
+                padding: 0 1rem;
             }
-
+            
             .tabs {
-                width: 100%;
-                justify-content: space-between;
+                justify-content: space-around;
             }
             
             .hero-title {
-                font-size: 3.5rem;
+                font-size: 28px;
+            }
+            
+            .hero-description {
+                font-size: 14px;
             }
             
             .time-filter {
                 flex-wrap: wrap;
             }
+            
+            .chart-wrapper {
+                height: 250px;
+            }
+            
+            #custom-distribution-chart {
+                width: 220px;
+                height: 220px;
+            }
+            
+            .chart-center {
+                width: 90px;
+                height: 90px;
+            }
+            
+            .total-count {
+                font-size: 20px;
+            }
         }
 
         @media (max-width: 480px) {
             .hero-title {
-                font-size: 2.8rem;
+                font-size: 24px;
+            }
+            
+            .tab {
+                padding: 0 0.5rem;
+            }
+            
+            .stat-grid {
+                grid-template-columns: 1fr;
             }
             
             .stat-item {
@@ -559,6 +587,29 @@
             
             .stat-value {
                 font-size: 1.5rem;
+            }
+            
+            .chart-wrapper {
+                height: 220px;
+            }
+            
+            #custom-distribution-chart {
+                width: 180px;
+                height: 180px;
+            }
+            
+            .chart-center {
+                width: 70px;
+                height: 70px;
+            }
+            
+            .total-count {
+                font-size: 18px;
+            }
+            
+            .emotion-label {
+                font-size: 10px;
+                padding: 3px 6px;
             }
         }
 
